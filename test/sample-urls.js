@@ -128,12 +128,12 @@ var sampleUrls = [
 	}
 ];
 
-function buildUrlList(urlSelector, addNonPlayable) {
-	for (var i in sampleUrls) {
-		var group = document.createElement("optgroup");
+export function buildUrlList(urlSelector, addNonPlayable) {
+	for (let i in sampleUrls) {
+		const group = document.createElement("optgroup");
 		group.label = sampleUrls[i].groupName;
 		urlSelector.appendChild(group);
-		for (var j in sampleUrls[i].urls) {
+		for (let j in sampleUrls[i].urls) {
 			if (addNonPlayable || sampleUrls[i].urls[j].playable === undefined || sampleUrls[i].urls[j].playable) {
 				group.appendChild(new Option(sampleUrls[i].urls[j].desc, sampleUrls[i].urls[j].url));
 			}

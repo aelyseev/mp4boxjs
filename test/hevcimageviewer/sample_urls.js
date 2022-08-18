@@ -1,11 +1,11 @@
 var sampleUrls = [
-	{ 
+	{
 		groupName: "BPG Images",
 		urls: [
 			{ url: "./bpg/4ever.bpg", desc: "Extract from the 4EVER UHD HEVC Dataset"},
 		]
 	},
-	{ 
+	{
 		groupName: "BPG Images (require disabling CORS)",
 		urls: [
 			{ url: "http://bellard.org/bpg/lena_q36.bpg", desc: "Lena (from BPG Web Site, QP36)"},
@@ -13,17 +13,17 @@ var sampleUrls = [
 			{ url: "http://bellard.org/bpg/005.bpg", desc: "003 (from BPG Web Site)"},
 		]
 	},
-	{ 
+	{
 		groupName: "HEVC MP4",
 		urls: [
 			{ url: "http://download.tsi.telecom-paristech.fr/gpac/dataset/dash/uhd/mux_sources/hevcds_720p30_2M.mp4", desc: "4EVER Video (720p, 8-bit)"},
 			{ url: "http://download.tsi.telecom-paristech.fr/gpac/dataset/dash/uhd/mux_sources/hevcds_1080p30_4M.mp4", desc: "4EVER Video (1080p, 8-bit)"},
 			{ url: "http://download.tsi.telecom-paristech.fr/gpac/dataset/dash/uhd/mux_sources/hevcds_1080p60_Main10_8M.mp4", desc: "4EVER Video (1080p, 10-bit)"},
 			{ url: "http://download.tsi.telecom-paristech.fr/gpac/dataset/dash/uhd/mux_sources/hevcds_2160p60_12M.mp4", desc: "4EVER Video (2160p, 8-bit)"},
-			{ url: "http://download.tsi.telecom-paristech.fr/gpac/dataset/dash/uhd/mux_sources/hevcds_2160p60_Main10_20M.mp4", desc: "4EVER Video (2160p, 10-bit)"},			
+			{ url: "http://download.tsi.telecom-paristech.fr/gpac/dataset/dash/uhd/mux_sources/hevcds_2160p60_Main10_20M.mp4", desc: "4EVER Video (2160p, 10-bit)"},
 		]
 	},
-	{ 
+	{
 		groupName: "Internal Testing",
 		urls: [
 			{ url: "./mp4/hevc/140626_720p_hm130_4s_sao_dbf_qp27.mp4", desc: "Elecard Video 1 (720p)"},
@@ -42,7 +42,7 @@ var sampleUrls = [
 	},
 ];
 
-function buildUrlList(urlSelector, addNonPlayable) {
+export function buildUrlList(urlSelector, addNonPlayable) {
 	for (var i in sampleUrls) {
 		var group = document.createElement("optgroup");
 		group.label = sampleUrls[i].groupName;
@@ -53,4 +53,4 @@ function buildUrlList(urlSelector, addNonPlayable) {
 			}
 		}
 	}
-}	
+}

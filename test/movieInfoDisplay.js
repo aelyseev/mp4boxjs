@@ -1,6 +1,6 @@
 var displayDates = false;
 
-function getBasicTrackHeader() {
+export function getBasicTrackHeader() {
 	var html = '';
 	html += "<th>ID</th>";
 	html += "<th>References</th>";
@@ -25,7 +25,7 @@ function getBasicTrackHeader() {
 	return html;
 }
 
-function getBasicTrackInfo(track) {
+export function getBasicTrackInfo(track) {
 	var i;
 	var html = '';
 	html += "<td>"+track.id+"</td>";
@@ -50,7 +50,7 @@ function getBasicTrackInfo(track) {
 	}
 	html += "<td>"+track.movie_duration+" - "+Log.getDurationString(track.movie_duration,track.movie_timescale)+"</td>";
 	html += "<td>";
-	if (track.edits && track.edits.length > 0) { 
+	if (track.edits && track.edits.length > 0) {
 		html += "<table>";
 		html += "<thead>";
 		html += "<tr><th>Presentation Duration</th><th>Track Time</th><th>Speed</th></tr>";
@@ -64,12 +64,12 @@ function getBasicTrackInfo(track) {
 			} else {
 				html += "<td></td>";
 			}
-			html += "<td>"+track.edits[i].media_rate_integer+"</td>";			
+			html += "<td>"+track.edits[i].media_rate_integer+"</td>";
 			html += "</tr>";
 		}
 		html += "</tbody>";
 		html += "</table>";
-	} 
+	}
 	html += "</td>";
 	html += "<td>"+track.duration+" - "+Log.getDurationString(track.duration,track.timescale)+"</td>";
 	html += "<td>"+track.timescale+"</td>";
@@ -81,8 +81,8 @@ function getBasicTrackInfo(track) {
 		html += "<tr><td>max</td><td>"+track.cts_shift.greatestDecodeToDisplayDelta+" - "+Log.getDurationString(track.cts_shift.greatestDecodeToDisplayDelta,track.timescale)+"</td></tr>";
 		html += "<tr><td>start</td><td>"+track.cts_shift.compositionStartTime+" - "+Log.getDurationString(track.cts_shift.compositionStartTime,track.timescale)+"</td></tr>";
 		html += "<tr><td>end</td><td>"+track.cts_shift.compositionEndTime+" - "+Log.getDurationString(track.cts_shift.compositionEndTime,track.timescale)+"</td></tr>";
-		html += "</table>";	
-	}	
+		html += "</table>";
+	}
 	html += "</td>";
 	html += "<td>"+track.nb_samples+"</td>";
 	html += "<td>"+(Math.floor(track.bitrate*100/1024)/100)+"</td>";
@@ -95,21 +95,21 @@ function getBasicTrackInfo(track) {
 	return html;
 }
 
-function getVideoTrackHeader() {
+export function getVideoTrackHeader() {
 	var html = '';
 	html += "<th>Width</th>";
 	html += "<th>Height</th>";
 	return html;
 }
 
-function getVideoTrackInfo(track) {
+export function getVideoTrackInfo(track) {
 	var html = '';
 	html += "<td>"+track.video.width+"</td>";
 	html += "<td>"+track.video.height+"</td>";
 	return html;
 }
 
-function getAudioTrackHeader() {
+export function getAudioTrackHeader() {
 	var html = '';
 	html += "<th>Sample Rate</th>";
 	html += "<th>Channel Count</th>";
@@ -117,7 +117,7 @@ function getAudioTrackHeader() {
 	return html;
 }
 
-function getAudioTrackInfo(track) {
+export function getAudioTrackInfo(track) {
 	var html = '';
 	html += "<td>"+track.audio.sample_rate+"</td>";
 	html += "<td>"+track.audio.channel_count+"</td>";
@@ -125,25 +125,25 @@ function getAudioTrackInfo(track) {
 	return html;
 }
 
-function generateTrackHeader(type) {
+export function generateTrackHeader(type) {
 	var html = '';
 	html += "<tr>";
 	html += getBasicTrackHeader();
 	switch (type) {
 		case "Video":
 			html += getVideoTrackHeader();
-			break;				
+			break;
 		case "Audio":
 			html += getAudioTrackHeader();
-			break;				
+			break;
 		case "Subtitle":
-			break;				
+			break;
 		case "Metadata":
-			break;				
+			break;
 		case "Hint":
-			break;				
+			break;
 		default:
-			break;				
+			break;
 	}
 	if (displaySourceBuffer) {
 		html += "<th>Source Buffer Status</th>";
@@ -152,26 +152,26 @@ function generateTrackHeader(type) {
 	return html;
 }
 
-function generateTrackInfo(track, type) {
+export function generateTrackInfo(track, type) {
 	var html = '';
 	html += "<tr>";
 	html += getBasicTrackInfo(track);
 	switch (type) {
 		case "Video":
 			html += getVideoTrackInfo(track);
-			break;				
+			break;
 		case "Audio":
 			html += getAudioTrackInfo(track);
-			break;				
+			break;
 		case "Subtitle":
-			break;				
+			break;
 		case "Metadata":
-			break;				
+			break;
 		case "Hint":
-			break;	
+			break;
 		default:
 			break;
-	}					
+	}
 	if (displaySourceBuffer) {
 		var mime = 'video/mp4; codecs=\"'+track.codec+'\"';
 		if (MediaSource.isTypeSupported(mime)) {
@@ -184,7 +184,7 @@ function generateTrackInfo(track, type) {
 	return html;
 }
 
-function getTrackListInfo(tracks, type) {
+export function getTrackListInfo(tracks, type) {
 	var html = '';
 	html += "<div class='trackinfo'>";
 	if (tracks.length>0) {
@@ -194,14 +194,14 @@ function getTrackListInfo(tracks, type) {
 		for (var i = 0; i < tracks.length; i++) {
 			html += generateTrackInfo(tracks[i], type);
 		}
-		html += "</table>";	
+		html += "</table>";
 	}
 	html += '</div>';
 	return html;
 }
 
 var displaySourceBuffer = true;
-function displayMovieInfo(info, div, _displaySourceBuffer) {
+export function displayMovieInfo(info, div, _displaySourceBuffer) {
 	if (_displaySourceBuffer !== undefined) displaySourceBuffer = _displaySourceBuffer;
 	var html = "Movie Info";
 	var fileLength = 0;
@@ -245,23 +245,23 @@ function displayMovieInfo(info, div, _displaySourceBuffer) {
 	div.innerHTML = html;
 }
 
-function dateToInput(date) {
+export function dateToInput(date) {
 	var d = date.getDate();
     var m = date.getMonth()+1;
     var y = date.getFullYear();
     var h = date.getHours();
     var mn = date.getMinutes();
     if(d < 10){
-        d = "0"+d;
+        d = `0${d}`;
     }
     if(m < 10){
-        m = "0"+m;
+        m = `0${m}`;
     }
     if(h < 10){
-        h = "0"+h;
+        h = `0${h}`;
     }
     if(mn < 10){
-        mn = "0"+mn;
+        mn = `0${mn}`;
     }
 
     return "<input type='date' disabled value='"+y+"-"+m+"-"+d+"'><input type='time' disabled value='"+h+":"+mn+"'>";
