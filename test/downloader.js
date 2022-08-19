@@ -1,7 +1,4 @@
 import {ContentAddressableStorage} from './ca.js';
-import {TESTNET} from './ddc-client.js';
-
-console.log({ContentAddressableStorage});
 
 function computeWaitingTimeFromBuffer(v) {
     var ms = v.ms;
@@ -16,9 +13,9 @@ function computeWaitingTimeFromBuffer(v) {
     var duration;
     /* computing the intersection of the buffered values of all active sourcebuffers around the current time,
        may already be done by the browser when calling video.buffered (to be checked: TODO) */
-    for (var i = 0; i < ms.activeSourceBuffers.length; i++) {
+    for (let i = 0; i < ms.activeSourceBuffers.length; i++) {
         sb = ms.activeSourceBuffers[i];
-        for (var j = 0; j < sb.buffered.length; j++) {
+        for (let j = 0; j < sb.buffered.length; j++) {
             startRange = sb.buffered.start(j);
             endRange = sb.buffered.end(j);
             if (currentTime >= startRange && currentTime <= endRange) {
@@ -62,12 +59,18 @@ export class Downloader {
     url = null;
     callback = null;
     eof = false;
-    downloadTimeoutCallback = null;
     cache = new Map();
 
-    constructor(bucketId, cid) {
+    /**
+     * @param {Object} options
+     * @param {BigInt} options.bucketId
+     * @param {string} options.cid
+     * @param {BigInt} options.clusterAddress
+     * @param {Object} options.smartContract
+     */
+    constructor({bucketId, cid, clusterAddress, smartContract}) {
         this.bucketId = bucketId;
-        this.mainPiece = ContentAddressableStorage.build({clusterAddress: 2, smartContract: TESTNET})
+        this.mainPiece = ContentAddressableStorage.build({clusterAddress, smartContract})
             .then(storage => {
                 this.storage = storage;
                 return storage.read(bucketId, cid);
@@ -86,18 +89,13 @@ export class Downloader {
             return this.cache.get(cid);
         }
         const piece = await this.storage.read(this.bucketId, cid);
+        console.log({piece});
         this.cache.set(cid, piece);
         return piece;
     }
 
-    setDownloadTimeoutCallback(callback) {
-        this.downloadTimeoutCallback = callback;
-        return this;
-    }
-
     reset() {
         this.chunkStart = 0;
-        this.totalLength = 0;
         this.eof = false;
         return this;
     }
@@ -154,28 +152,30 @@ export class Downloader {
         if (this.chunkStart + this.chunkSize < Infinity) {
             range = `bytes=${this.chunkStart}-`;
             maxRange = this.chunkStart + this.chunkSize - 1;
-            range += maxRange;
+            range += maxRange > this.totalLength ? '' : maxRange;
         }
 
         const [requestId] = crypto.getRandomValues(new Uint32Array([1]));
         const headers = range ? {Range: range} : {};
 
-        fetch(this.url, {headers})
-            .then(response => {
-                const rangeReceived = response.headers.get('Content-Range');
-                console.log({rangeReceived, range, requestId});
-                console.debug("Downloader", "Received data range: " + rangeReceived);
-                if (!dl.totalLength && rangeReceived) {
-                    let sizeIndex = rangeReceived.indexOf("/");
-                    if (sizeIndex > -1) {
-                        dl.totalLength = Number(rangeReceived.slice(sizeIndex + 1));
-                    }
-                }
-                return response.arrayBuffer();
-            })
-            .then(buffer => {
+        const cidIndex = Math.floor(this.chunkStart / this.chunkSize);
+        const cid = this.links[cidIndex].cid;
+
+        if (cidIndex === this.links.length - 1) {
+            this.eof = true;
+        }
+
+        console.log({cid, cidIndex});
+
+        this.getPiece(cid).then(piece => {
+            return piece.data;
+        })
+            .then(pieceData => {
+                const pieceDataCopy = new Uint8Array(pieceData.byteLength);
+                pieceDataCopy.set(pieceData);
+                const buffer = pieceDataCopy.buffer;
                 buffer.fileStart = this.chunkStart;
-                dl.callback(buffer, dl.eof);
+                dl.callback?.(buffer, dl.eof);
                 if (dl.isActive === true && dl.eof === false) {
                     let timeoutDuration = computeWaitingTimeFromBuffer(document.getElementById('v'));
                     console.debug('Downloader', `Next download scheduled in ${Math.floor(timeoutDuration)} ms.`);
@@ -186,8 +186,37 @@ export class Downloader {
             })
             .catch((err) => {
                 console.log({range, err, requestId});
-                dl.callback(null, false, true);
+                dl.callback?.(null, false, true);
             })
+
+        // fetch('/into-the-unknown.mp4', {headers})
+        //     .then(response => {
+        //         const rangeReceived = response.headers.get('Content-Range');
+        //         console.log({rangeReceived, range, requestId});
+        //         console.debug("Downloader", "Received data range: " + rangeReceived);
+        //         if (!dl.totalLength && rangeReceived) {
+        //             let sizeIndex = rangeReceived.indexOf("/");
+        //             if (sizeIndex > -1) {
+        //                 dl.totalLength = Number(rangeReceived.slice(sizeIndex + 1));
+        //             }
+        //         }
+        //         return response.arrayBuffer();
+        //     })
+        //     .then(buffer => {
+        //         buffer.fileStart = this.chunkStart;
+        //         dl.callback(buffer, dl.eof);
+        //         if (dl.isActive === true && dl.eof === false) {
+        //             let timeoutDuration = computeWaitingTimeFromBuffer(document.getElementById('v'));
+        //             console.debug('Downloader', `Next download scheduled in ${Math.floor(timeoutDuration)} ms.`);
+        //             dl.timeoutID = window.setTimeout(dl.getFile.bind(dl), timeoutDuration);
+        //         } else {
+        //             dl.isActive = false;
+        //         }
+        //     })
+        //     .catch((err) => {
+        //         console.log({range, err, requestId});
+        //         dl.callback(null, false, true);
+        //     })
     }
 
     start() {
