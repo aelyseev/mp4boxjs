@@ -182,14 +182,14 @@ function onSourceClose(e) {
 
 function onSourceOpen(e) {
     const ms = e.target;
-    console.debug("MSE", "Source opened");
-    console.debug("MSE", ms);
+    console.debug('MSE', 'Source opened');
+    console.debug('MSE', ms);
     urlSelector.disabled = false;
 }
 
 function updateBufferedString(sb, string) {
     let rangeString;
-    if (sb.ms.readyState === "open") {
+    if (sb.ms.readyState === 'open') {
         rangeString = Log.printRanges(sb.buffered);
         console.debug(`MSE - SourceBuffer #${sb.id}`, `${string}, updating: ${sb.updating}, currentTime: ${Log.getDurationString(video.currentTime, 1)}, buffered: ${rangeString}, pending: ${sb.pendingAppends.length}`);
         if (sb.bufferTd === undefined) {
@@ -202,7 +202,7 @@ function updateBufferedString(sb, string) {
 function onInitAppended(e) {
     const sb = e.target;
     if (sb.ms.readyState === "open") {
-        updateBufferedString(sb, "Init segment append ended");
+        updateBufferedString(sb, 'Init segment append ended');
         sb.sampleNum = 0;
         sb.removeEventListener('updateend', onInitAppended);
         sb.addEventListener('updateend', onUpdateEnd.bind(sb, true, true));
@@ -218,7 +218,7 @@ function onInitAppended(e) {
 function onUpdateEnd(isNotInit, isEndOfAppend) {
     if (isEndOfAppend === true) {
         if (isNotInit === true) {
-            updateBufferedString(this, "Update ended");
+            updateBufferedString(this, 'Update ended');
         }
         if (this.sampleNum) {
             mp4boxfile.releaseUsedSamples(this.id, this.sampleNum);
@@ -228,7 +228,7 @@ function onUpdateEnd(isNotInit, isEndOfAppend) {
             this.ms.endOfStream();
         }
     }
-    if (this.ms.readyState === "open" && this.updating === false && this.pendingAppends.length > 0) {
+    if (this.ms.readyState === 'open' && this.updating === false && this.pendingAppends.length > 0) {
         const obj = this.pendingAppends.shift();
         console.debug(`MSE - SourceBuffer #${this.id}`, `Appending new buffer, pending: ${this.pendingAppends.length}`);
         this.sampleNum = obj.sampleNum;
